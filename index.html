@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Wikipedia Article Tool</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#202122;--mu:#6b7280;--bd:#c8ccd1;--cd:#fff;--ac:#36c;--on:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101418;--fg:#e8eaed;--mu:#9aa4b2;--bd:#39424d;--cd:#1a2027;--ac:#7ea8ff;--on:#0b1220;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101418;--fg:#e8eaed;--mu:#9aa4b2;--bd:#39424d;--cd:#1a2027;--ac:#7ea8ff;--on:#0b1220;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:12px 14px;border-bottom:1px solid var(--bd);background:var(--cd)}
+h1{font:600 20px Georgia,"Linux Libertine",serif;margin:0}
+header p{margin:2px 0 0;color:var(--mu);font-size:13px}
+main{display:grid;gap:12px;padding:12px;max-width:1200px;margin:auto}
+@media(min-width:900px){main{grid-template-columns:1.1fr .9fr;align-items:start}#o{position:sticky;top:8px}}
+section{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:12px}
+#o section{margin:0}
+label{display:block;font-size:12px;color:var(--mu);margin:8px 0 2px}
+input,select,textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:7px 9px}
+input[type=checkbox]{width:auto;margin-right:6px}
+.r{display:flex;gap:8px}.r>*{flex:1}
+.tb{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+button,.bt{font:inherit;font-size:14px;min-width:34px;padding:5px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--cd);color:var(--fg);cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.bt:hover{border-color:var(--ac)}
+.pr{background:var(--ac);color:var(--on);border-color:var(--ac)}
+.bt{margin-top:8px}
+summary{cursor:pointer}
+small{color:var(--mu)}
+#ed{min-height:300px;border:1px solid var(--bd);border-radius:6px;padding:10px;background:var(--bg);font-size:16px;line-height:1.6;outline:none;counter-reset:r}
+#ed:focus{border-color:var(--ac)}
+#ed:empty::before{content:attr(data-ph);color:var(--mu)}
+#ed h2{font:400 1.5em Georgia,serif;border-bottom:1px solid var(--bd);margin:.8em 0 .4em}
+#ed h3{font-size:1.2em;margin:.8em 0 .3em}#ed h4{font-size:1.05em;margin:.8em 0 .3em}
+#ed a{color:var(--ac)}#ed a[href]{text-decoration-style:dotted}
+#ed blockquote{margin:.6em 1em;padding-left:10px;border-left:3px solid var(--bd)}
+#ed table{border-collapse:collapse;margin:.5em 0}#ed td,#ed th{border:1px solid var(--bd);padding:4px 8px;min-width:50px}#ed th{font-weight:600}
+.rf{counter-increment:r;color:var(--ac);cursor:default;font-size:.75em;vertical-align:super}.rf::after{content:"[" counter(r) "]"}
+.im{margin:.5em 0;padding:8px;border:1px dashed var(--bd);border-radius:6px;font-size:13px;color:var(--mu)}
+#out{min-height:380px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre;overflow:auto;margin-top:8px}
+dialog{border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--fg);width:min(92vw,420px);padding:14px;max-height:90vh;overflow:auto}
+dialog::backdrop{background:#0008}
+</style></head><body>
+<header><h1>Wikipedia Article Tool</h1><p>Yahan normal tarah se likhein, neeche Wikipedia source code (wikitext) apne aap ban jayega.</p></header>
+<main><div id="w">
+<section><div class="r"><div><label>Language</label><select id="lang"><option value="en">English Wikipedia</option><option value="hi">Hindi Wikipedia</option></select></div><div><label>Article title</label><input id="title" placeholder="e.g. Example Person"></div></div>
+<label><input type="checkbox" id="dr" checked>Draft: namespace mein banayein (naye account ke liye behtar)</label>
+<label>Short description (1 line)</label><input id="sd" placeholder="e.g. Indian YouTuber"></section>
+<section><details><summary><b>Infobox</b> (optional)</summary>
+<label>Type (list se chunein ya apna likhein)</label><input id="ib" list="ibl" placeholder="person, company, film..."><datalist id="ibl"><option value="person"><option value="company"><option value="settlement"><option value="film"><option value="book"><option value="website"></datalist>
+<label>Fields (key = value, ek line mein ek)</label><textarea id="ibt" rows="7" spellcheck="false"></textarea></details></section>
+<section><b>Article likhein</b>
+<div class="tb">
+<button data-a="undo" title="Undo">↶</button><button data-a="redo" title="Redo">↷</button>
+<button data-a="p" title="Normal paragraph">¶</button><button data-a="h2">H2</button><button data-a="h3">H3</button><button data-a="h4">H4</button>
+<button data-a="b"><b>B</b></button><button data-a="i"><i>I</i></button>
+<button data-a="ul">• List</button><button data-a="ol">1. List</button>
+<button data-a="link">[[Link]]</button><button data-a="ext">Ext link</button>
+<button data-a="ref">Ref [1]</button><button data-a="img">Image</button><button data-a="tbl">Table</button>
+<button data-a="bq">Quote</button><button data-a="sup">x²</button><button data-a="sub">x₂</button><button data-a="hr">―</button><button data-a="cl">Clear</button></div>
+<div id="ed" contenteditable="true" data-ph="Yahan article likhna shuru karein. Pehla paragraph lead hota hai; headings ke liye H2/H3 use karein."></div>
+<p><small>Tip: text select karke [[Link]] ya Ref dabayein. Reference ka number aur References section apne aap ban jata hai.</small></p></section>
+<section><details><summary><b>Extra sections</b> (See also, External links, Categories)</summary>
+<label>See also (ek line = ek article ka naam)</label><textarea id="see" rows="3"></textarea>
+<label>External links (url | text)</label><textarea id="el" rows="3" spellcheck="false"></textarea>
+<label>Categories (comma se alag)</label><input id="cat" placeholder="Living people, Indian YouTubers"></details></section>
+</div>
+<div id="o"><section><div class="r" style="align-items:center"><b style="flex:2">Wikipedia source code</b><button class="pr" id="cp">Copy</button></div>
+<textarea id="out" readonly spellcheck="false"></textarea>
+<p><small id="st"></small></p>
+<a id="open" class="bt" target="_blank" rel="noopener" hidden>Wikipedia edit page kholein ↗</a>
+<p><small>Steps: Copy karein, Wikipedia par Edit (source editing) kholein, paste karein, Show preview dekhein, phir Publish page. Naye article mein reliable sources zaroor dein.</small></p></section></div></main>
+<dialog id="dlg"><b id="dt"></b><div id="df"></div><div class="r" style="margin-top:12px"><button id="dx">Cancel</button><button class="pr" id="dok">OK</button></div></dialog>
+<script>
+const $=s=>document.querySelector(s),ed=$('#ed'),out=$('#out'),dlg=$('#dlg');
+const H=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const enc=v=>encodeURIComponent(JSON.stringify(v)),dec=s=>JSON.parse(decodeURIComponent(s));
+const L={en:{see:'See also',ref:'References',ext:'External links',cat:'Category'},hi:{see:'इन्हें भी देखें',ref:'संदर्भ',ext:'बाहरी कड़ियाँ',cat:'श्रेणी'}};
+const IB={person:'name,image,caption,birth_date,birth_place,nationality,occupation,known_for,website',company:'name,logo,industry,founded,founder,headquarters,products,website',settlement:'name,image,subdivision_type,subdivision_name,population_total,area_total_km2,website',film:'name,image,caption,director,producer,starring,released,runtime,country,language',book:'name,author,country,language,genre,publisher,pub_date,pages,isbn',website:'name,url,type,owner,created_by,launched,language'};
+let rng=null;const used={};
+document.addEventListener('selectionchange',()=>{const s=getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))rng=s.getRangeAt(0).cloneRange()});
+function restore(){ed.focus();if(!rng){rng=document.createRange();rng.selectNodeContents(ed);rng.collapse(false)}const s=getSelection();s.removeAllRanges();s.addRange(rng)}
+function cmd(c,v){restore();document.execCommand(c,false,v);gen()}
+function ins(h){document.execCommand('insertHTML',false,h);gen()}
+function ask(title,fields,ok){
+ $('#dt').textContent=title;
+ $('#df').innerHTML=fields.map(f=>'<label>'+f[1]+(f[2]=='select'?'<select id="f_'+f[0]+'">'+f[3].map(o=>'<option>'+o+'</option>').join('')+'</select>':'<input id="f_'+f[0]+'" type="'+f[2]+'" placeholder="'+H(f[3]||'')+'" value="'+H(f[4]||'')+'">')+'</label>').join('');
+ $('#dok').onclick=()=>{const v={};fields.forEach(f=>v[f[0]]=$('#f_'+f[0]).value.trim());if(ok(v)!==false)dlg.close()};
+ dlg.showModal();
+}
+$('#dx').onclick=()=>dlg.close();
+$('#df').onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();$('#dok').click()}};
+const sel=()=>rng?rng.toString():'';
+const X={
+ link(){const s=sel();ask('Wikipedia link [[ ]]',[['t','Article ka naam (jis page par link jaye)','text','',s],['x','Link text (khali = wahi naam)','text','',s]],v=>{if(!v.t)return false;restore();ins('<a data-wl="'+H(v.t)+'">'+H(v.x||v.t)+'</a>')})},
+ ext(){const s=sel();ask('External link',[['u','URL','url','https://'],['x','Link text','text','',s]],v=>{if(!v.u)return false;restore();ins('<a href="'+H(v.u)+'">'+H(v.x||v.u)+'</a>')})},
+ ref(){ask('Reference (citation)',[['type','Type','select',['cite web','cite news','cite book','cite journal','plain text']],['url','URL','url','https://'],['title','Title (plain text mein yahi text use hoga)','text'],['author','Author','text'],['pub','Publisher / website / newspaper / journal','text'],['date','Date','text','e.g. 12 March 2024'],['page','Page (book)','text'],['ext','ISBN / DOI (book, journal)','text'],['acc','Access date','date','',new Date().toISOString().slice(0,10)],['name','Ref name (same source dobara use karne ke liye, optional)','text']],v=>{if(!v.title)return false;restore();ins('<sup class="rf" contenteditable="false" data-j="'+enc(v)+'" title="'+H(v.title)+'"></sup>&#8203;')})},
+ img(){ask('Image (Wikimedia Commons file)',[['f','File name','text','Example.jpg'],['c','Caption','text'],['a','Alignment','select',['right','left','center','none']],['s','Width px (optional)','number']],v=>{if(!v.f)return false;restore();ins('<figure class="im" contenteditable="false" data-j="'+enc(v)+'">🖼 '+H(v.f)+' — '+H(v.c)+'</figure><div><br></div>')})},
+ tbl(){ask('Table',[['r','Rows (header ke saath)','number','','3'],['c','Columns','number','','3']],v=>{const r=Math.min(+v.r||3,30),c=Math.min(+v.c||3,10);let h='<table>';for(let i=0;i<r;i++)h+='<tr>'+Array.from({length:c},(_,j)=>i?'<td>Text</td>':'<th>Heading '+(j+1)+'</th>').join('')+'</tr>';restore();ins(h+'</table><div><br></div>')})}
+};
+const A={undo:['undo'],redo:['redo'],p:['formatBlock','p'],h2:['formatBlock','h2'],h3:['formatBlock','h3'],h4:['formatBlock','h4'],b:['bold'],i:['italic'],ul:['insertUnorderedList'],ol:['insertOrderedList'],bq:['formatBlock','blockquote'],sup:['superscript'],sub:['subscript'],hr:['insertHorizontalRule'],cl:['removeFormat']};
+document.querySelectorAll('[data-a]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>{const a=b.dataset.a;A[a]?cmd(...A[a]):X[a]()}});
+ed.addEventListener('paste',e=>{e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'))});
+
+/* HTML -> wikitext */
+const wr=(s,q)=>{const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/);return m[2]?m[1]+q+m[2]+q+m[3]:s};
+const PK={'cite web':'publisher','cite news':'work','cite book':'publisher','cite journal':'journal'},XK={'cite book':'isbn','cite journal':'doi'};
+function ref(n){
+ const j=dec(n.dataset.j),nm=j.name;
+ if(nm&&used[nm])return'<ref name="'+nm+'" />';
+ if(nm)used[nm]=1;
+ let body=j.title;
+ if(j.type!='plain text')body='{{'+j.type+[['url',j.url],['title',j.title],['author',j.author],[PK[j.type],j.pub],['date',j.date],['page',j.page],[XK[j.type],XK[j.type]&&j.ext],['access-date',j.url&&j.acc]].filter(p=>p[1]).map(p=>' | '+p[0]+'='+p[1]).join('')+'}}';
+ return'<ref'+(nm?' name="'+nm+'"':'')+'>'+body+'</ref>';
+}
+function list(li,p){let t='',s='';[...li.childNodes].forEach(x=>{if(x.nodeType==1&&/^(ul|ol)$/i.test(x.tagName))s+='\n'+[...x.children].map(l=>list(l,p+(x.tagName=='UL'?'*':'#'))).join('\n');else t+=w(x)});return p+' '+t.trim()+s}
+function table(n){let s='\n\n{| class="wikitable"\n';[...n.rows].forEach(r=>{const h=r.cells[0]&&r.cells[0].tagName=='TH';s+='|-\n'+(h?'! ':'| ')+[...r.cells].map(c=>[...c.childNodes].map(w).join('').trim()).join(h?' !! ':' || ')+'\n'});return s+'|}\n\n'}
+function w(n){
+ if(n.nodeType==3)return n.textContent.replace(/\u200b/g,'').replace(/\u00a0/g,' ');
+ if(n.nodeType!=1)return'';
+ const t=n.tagName.toLowerCase(),c=()=>[...n.childNodes].map(w).join('');
+ switch(t){
+  case'b':case'strong':return wr(c(),"'''");
+  case'i':case'em':return wr(c(),"''");
+  case'sup':return n.classList.contains('rf')?ref(n):'<sup>'+c()+'</sup>';
+  case'sub':return'<sub>'+c()+'</sub>';
+  case'br':return n.parentNode.childNodes.length==1?'':'<br />';
+  case'a':{const x=n.dataset.wl,s=c();if(x!==undefined)return x==s?'[['+x+']]':'[['+x+'|'+s+']]';const h=n.getAttribute('href');return'['+h+(s&&s!=h?' '+s:'')+']'}
+  case'h2':case'h3':case'h4':{const e='='.repeat(+t[1]);return'\n\n'+e+' '+c().trim()+' '+e+'\n\n'}
+  case'ul':case'ol':return'\n\n'+[...n.children].map(li=>list(li,t=='ul'?'*':'#')).join('\n')+'\n\n';
+  case'hr':return'\n\n----\n\n';
+  case'blockquote':return'\n\n<blockquote>'+c().trim()+'</blockquote>\n\n';
+  case'table':return table(n);
+  case'figure':{const j=dec(n.dataset.j);return'\n\n[[File:'+j.f.replace(/^(File|चित्र):/i,'')+'|thumb|'+j.a+(j.s?'|'+j.s+'px':'')+(j.c?'|'+j.c:'')+']]\n\n'}
+  case'div':case'p':return'\n\n'+c().replace(/(<br \/>\s*)+$/,'').trim()+'\n\n';
+  default:return c();
+ }
+}
+function gen(){
+ for(const k in used)delete used[k];
+ const l=L[$('#lang').value],P=[],top=[],sd=$('#sd').value.trim(),k=$('#ib').value.trim();
+ if(sd)top.push('{{Short description|'+sd+'}}');
+ const rows=$('#ibt').value.split('\n').map(x=>x.match(/^\s*([^=]+?)\s*=\s*(.+)$/)).filter(Boolean);
+ if(k&&rows.length)top.push('{{Infobox '+k+'\n'+rows.map(m=>'| '+m[1]+' = '+m[2]).join('\n')+'\n}}');
+ if(top.length)P.push(top.join('\n'));
+ const b=[...ed.childNodes].map(w).join('').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+ if(b)P.push(b);
+ const see=$('#see').value.split('\n').map(x=>x.trim()).filter(Boolean);
+ if(see.length)P.push('== '+l.see+' ==\n'+see.map(x=>'* [['+x+']]').join('\n'));
+ const refs=ed.querySelectorAll('.rf').length;
+ if(refs)P.push('== '+l.ref+' ==\n{{Reflist}}');
+ const el=$('#el').value.split('\n').map(x=>x.trim()).filter(Boolean);
+ if(el.length)P.push('== '+l.ext+' ==\n'+el.map(x=>{const[u,...t]=x.split('|');return'* ['+u.trim()+(t.length?' '+t.join('|').trim():'')+']'}).join('\n'));
+ const cats=$('#cat').value.split(',').map(x=>x.trim()).filter(Boolean);
+ if(cats.length)P.push(cats.map(c=>'[['+l.cat+':'+c+']]').join('\n'));
+ out.value=P.join('\n\n');
+ const wd=(ed.innerText.match(/\S+/g)||[]).length;
+ $('#st').textContent=wd+' words · '+refs+' references'+(wd&&!refs?' · ⚠ Reference jodein: bina source ka article delete ho sakta hai':'');
+ const t=$('#title').value.trim(),o=$('#open');
+ o.hidden=!t;o.href='https://'+$('#lang').value+'.wikipedia.org/w/index.php?title='+encodeURIComponent(($('#dr').checked?'Draft:':'')+t.replace(/ /g,'_'))+'&action=edit';
+}
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target!==out&&!dlg.contains(e.target))gen()}));
+$('#lang').addEventListener('change',()=>{$('#dr').checked=$('#lang').value=='en';gen()});
+$('#ib').addEventListener('change',()=>{const k=$('#ib').value.trim();if(IB[k])$('#ibt').value=IB[k].split(',').map(x=>x+' = ').join('\n');gen()});
+$('#cp').onclick=async()=>{try{await navigator.clipboard.writeText(out.value)}catch(e){out.select();document.execCommand('copy')}$('#cp').textContent='Copied ✓';setTimeout(()=>$('#cp').textContent='Copy',1500)};
+gen();
+</script></body></html>
